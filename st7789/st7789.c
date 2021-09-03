@@ -74,16 +74,8 @@
 	}
 #define DC_LOW() (mp_hal_pin_write(self->dc, 0))
 #define DC_HIGH() (mp_hal_pin_write(self->dc, 1))
-#define RESET_LOW()                           \
-	{                                         \
-		if (self->reset)                      \
-			mp_hal_pin_write(self->reset, 0); \
-	}
-#define RESET_HIGH()                          \
-	{                                         \
-		if (self->reset)                      \
-			mp_hal_pin_write(self->reset, 1); \
-	}
+#define RESET_LOW() (mp_hal_pin_write(self->reset, 0))
+#define RESET_HIGH() (mp_hal_pin_write(self->reset, 1))
 
 STATIC void write_spi(mp_obj_base_t *spi_obj, const uint8_t *buf, int len)
 {
@@ -1772,11 +1764,12 @@ mp_obj_t st7789_ST7789_make_new(const mp_obj_type_t *type,
 		mp_raise_ValueError(MP_ERROR_TEXT("must specify dc pin"));
 	}
 
-	if (args[ARG_reset].u_obj != MP_OBJ_NULL) {
-		self->reset = mp_hal_get_pin_obj(args[ARG_reset].u_obj);
+	if (args[ARG_reset].u_obj == MP_OBJ_NULL) {
+		mp_raise_ValueError(MP_ERROR_TEXT("must specify reset pin"));
 	}
 
 	self->dc = mp_hal_get_pin_obj(args[ARG_dc].u_obj);
+	self->reset = mp_hal_get_pin_obj(args[ARG_reset].u_obj);
 
 	if (args[ARG_cs].u_obj != MP_OBJ_NULL) {
 		self->cs = mp_hal_get_pin_obj(args[ARG_cs].u_obj);
